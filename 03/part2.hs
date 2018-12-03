@@ -2,19 +2,21 @@
 
 module Day3.Part2 where
 
-import           Control.Applicative
-import           Data.Char           (isDigit)
+-- import           Control.Applicative
+import           Data.Char   (isDigit)
 import           Data.List
-import           Data.Map            (Map)
-import qualified Data.Map            as M
-import           Data.Maybe          (catMaybes, listToMaybe, maybeToList)
-import           Data.Set            (Set)
-import qualified Data.Set            as S
-import           Text.Trifecta
+import           Data.Map    (Map)
+import qualified Data.Map    as M
+import           Data.Maybe  (catMaybes, listToMaybe, maybeToList)
+import           Data.Set    (Set)
+import qualified Data.Set    as S
+import           Text.Parsec
 
 sample = ["#1 @ 1,3: 4x4", "#2 @ 3,1: 4x4", "#3 @ 5,5: 2x2"]
 
 type Coord = (Int, Int)
+
+type Parser = Parsec String ()
 
 parserLine :: Parser (Int, Coord, Int, Int)
 parserLine = do
@@ -27,8 +29,11 @@ parserLine = do
   h <- char 'x' >> many digit
   return $ (read n, (read x, read y), read w, read h)
 
-fromSuccess :: Result a -> a
-fromSuccess (Success x) = x
+parseLine :: String -> (Int, Coord, Int, Int)
+parseLine = fromRight . parse parserLine ""
+
+fromRight :: Either b a -> a
+fromRight (Right x) = x
 
 generateCoords :: (Coord, Int, Int) -> [Coord]
 generateCoords ((x, y), w, h) = do
@@ -44,9 +49,6 @@ solve' :: [(Coord, Int, Int)] -> [Coord]
 solve' xs =
   map head $
   filter (\g -> length g > 1) $ group $ sort $ concatMap generateCoords xs
-
-parseLine :: String -> (Int, Coord, Int, Int)
-parseLine = fromSuccess . parseString parserLine mempty
 
 overlaps :: (Int, Coord, Int, Int) -> Set Coord -> Maybe Int
 overlaps (n, cs, w, h) dups =
