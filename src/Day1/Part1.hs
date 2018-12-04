@@ -8,5 +8,5 @@ solve = sum . map ((read :: String -> Int) . removePlus) . lines
 
 main :: IO ()
 main = do
-  text <- readFile "input.txt"
+  text <- readFile "src/Day1/input.txt"
   putStrLn $ show $ solve text

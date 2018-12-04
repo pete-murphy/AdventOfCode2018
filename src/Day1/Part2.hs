@@ -12,8 +12,8 @@ removePlus = filter (/= '+')
 toInts :: String -> [Int]
 toInts = map (read . removePlus) . lines
 
-solve :: [Int] -> Int
-solve xs = go [0] xs
+solve_ :: [Int] -> Int
+solve_ xs = go [0] xs
   where
     go acc [] = go acc xs
     go acc@(a:_) (y:ys) =
@@ -53,6 +53,9 @@ solve2 xs =
       where
         acc' = x + acc
 
+solve :: String -> Int
+solve = solveWithSet . toInts
+
 main' :: IO ()
 main' = do
   listOfInts <- toInts <$> readFile "input-1.txt"
@@ -61,7 +64,8 @@ main' = do
 main :: IO ()
 main =
   defaultMain
-    [ bench "solve with go" $
+    [ bench "solve_ with go" $
       nfIO $ solveWithSet . toInts <$> readFile "input-1.txt"
-    , bench "solve with fix" $ nfIO $ solve2 . toInts <$> readFile "input-1.txt"
+    , bench "solve_ with fix" $
+      nfIO $ solve2 . toInts <$> readFile "input-1.txt"
     ]
