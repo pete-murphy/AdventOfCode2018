@@ -1,6 +1,3 @@
-{-# LANGUAGE LambdaCase          #-}
-{-# LANGUAGE OverloadedStrings   #-}
-{-# LANGUAGE QuasiQuotes         #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections       #-}
 
@@ -9,12 +6,11 @@ module Day4.Part1 where
 import           Control.Arrow
 import           Data.Char
 import           Data.List
-import           Data.Map          (Map)
-import qualified Data.Map          as M
+import           Data.Map      (Map)
+import qualified Data.Map      as M
 import           Data.Maybe
-import           Data.Set          (Set)
-import qualified Data.Set          as S
-import           Text.RawString.QQ
+import           Data.Set      (Set)
+import qualified Data.Set      as S
 
 type EntryRow = ([Int], Entry)
 
@@ -60,7 +56,7 @@ toMapGuardFreqs :: [Shift] -> Map GuardId (Map Minute Int)
 toMapGuardFreqs [] = M.empty
 toMapGuardFreqs (((_, Guard n):shift):xs) =
   M.insertWith
-    insertFn
+    (M.unionWith (+))
     n
     (M.fromList $ map (, 1) $ getMinutesSleeping shift)
     (toMapGuardFreqs xs)
@@ -70,8 +66,6 @@ toMapGuardFreqs (((_, Guard n):shift):xs) =
     getMinutesSleeping (([_, m0], Sleep):([_, m1], Wake):xs) =
       [m0 .. m1] ++ getMinutesSleeping xs
     getMinutesSleeping (_:xs) = getMinutesSleeping xs
-    insertFn :: Map Minute Int -> Map Minute Int -> Map Minute Int
-    insertFn = M.unionWith (+)
 
 toMapGuardMinutes :: [Shift] -> Map GuardId Minutes
 toMapGuardMinutes [] = M.empty
@@ -83,33 +77,6 @@ toMapGuardMinutes (((_, Guard n):shift):xs) =
     getTimeSleeping ((t0, Sleep):(t1, Wake):xs) =
       diffInMinutes t0 t1 + getTimeSleeping xs
     getTimeSleeping (_:xs) = getTimeSleeping xs
-
-exampleLine1 :: String
-exampleLine1 = "[1518-05-11 00:00] Guard #2411 begins shift"
-
-exampleLine2 :: String
-exampleLine2 = "[1518-08-26 00:21] wakes up"
-
-example :: [String]
-example =
-  [ "[1518-11-01 00:00] Guard #10 begins shift"
-  , "[1518-11-01 00:05] falls asleep"
-  , "[1518-11-01 00:25] wakes up"
-  , "[1518-11-01 00:30] falls asleep"
-  , "[1518-11-01 00:55] wakes up"
-  , "[1518-11-01 23:58] Guard #99 begins shift"
-  , "[1518-11-02 00:40] falls asleep"
-  , "[1518-11-02 00:50] wakes up"
-  , "[1518-11-03 00:05] Guard #10 begins shift"
-  , "[1518-11-03 00:24] falls asleep"
-  , "[1518-11-03 00:29] wakes up"
-  , "[1518-11-04 00:02] Guard #99 begins shift"
-  , "[1518-11-04 00:36] falls asleep"
-  , "[1518-11-04 00:46] wakes up"
-  , "[1518-11-05 00:03] Guard #99 begins shift"
-  , "[1518-11-05 00:45] falls asleep"
-  , "[1518-11-05 00:55] wakes up"
-  ]
 
 diffInMinutes :: [Int] -> [Int] -> Int
 diffInMinutes [h, m] [h', m'] = (h' - h) * 60 + (m' - m)
@@ -137,13 +104,19 @@ solve' g t =
   sortKeysByValue $
   fromJust $ M.lookup g $ toMapGuardFreqs $ groupEntries $ map parseLine t
 
-solve :: [String] -> GuardId
-solve =
+solve'' :: [String] -> GuardId
+solve'' =
   head . sortKeysByValue . toMapGuardMinutes . groupEntries . map parseLine
+
+solve t = guardId * minute
+  where
+    text = sort $ lines t
+    guardId = solve'' text
+    minute = solve' guardId text
 
 main :: IO ()
 main = do
   text <- sort . lines <$> readFile "input.txt"
-  let guardId = solve text
+  let guardId = solve'' text
       minute = solve' guardId text
   putStrLn $ show $ (guardId, minute)

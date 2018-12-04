@@ -1,6 +1,3 @@
-{-# LANGUAGE LambdaCase          #-}
-{-# LANGUAGE OverloadedStrings   #-}
-{-# LANGUAGE QuasiQuotes         #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections       #-}
 
@@ -9,12 +6,11 @@ module Day4.Part2 where
 import           Control.Arrow
 import           Data.Char
 import           Data.List
-import           Data.Map          (Map)
-import qualified Data.Map          as M
+import           Data.Map      (Map)
+import qualified Data.Map      as M
 import           Data.Maybe
-import           Data.Set          (Set)
-import qualified Data.Set          as S
-import           Text.RawString.QQ
+import           Data.Set      (Set)
+import qualified Data.Set      as S
 
 type EntryRow = ([Int], Entry)
 
@@ -95,13 +91,10 @@ justDigits =
          then c
          else ' ')
 
-head_ (x:_) = Just x
-head_ _     = Nothing
-
 sortKeysByValue :: Ord a => Map a Int -> (a, Int)
 sortKeysByValue m = (fromJust f, fromJust $ M.lookup (fromJust f) m)
   where
-    f = head_ $ go [] Nothing (M.toList m)
+    f = listToMaybe $ go [] Nothing (M.toList m)
     go ks _ [] = ks
     go ks Nothing ((k, v):rest) = go (k : ks) (Just v) rest
     go ks (Just u) ((k, v):rest)
@@ -118,12 +111,17 @@ solve' t g =
   map (\(m, n) -> (g, m, n)) $
   M.toList $ fromJust $ M.lookup g $ toMapGuardFreqs t
 
-solve :: [Shift] -> [(GuardId, Minute, Int)]
-solve s = sortBy (sortingFn) $ concatMap (solve' s) $ getGuardIds s
+solve'' :: [Shift] -> [(GuardId, Minute, Int)]
+solve'' s = sortBy (sortingFn) $ concatMap (solve' s) $ getGuardIds s
   where
     sortingFn (_, _, m) (_, _, n) = compare m n
+
+solve t = x * y
+  where
+    text = sort $ lines t
+    (x, y, _) = last $ solve'' $ groupEntries $ map parseLine text
 
 main :: IO ()
 main = do
   text <- sort . lines <$> readFile "input.txt"
-  putStrLn $ show $ last $ solve $ groupEntries $ map parseLine text
+  putStrLn $ show $ last $ solve'' $ groupEntries $ map parseLine text
