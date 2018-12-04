@@ -51,6 +51,12 @@ overlaps (n, cs, w, h) dups =
     True  -> pure n
     False -> Nothing
 
+solve t =
+  head $
+  catMaybes $ map (((flip overlaps) (duplicateCoords text)) . parseLine) text
+  where
+    text = lines t
+
 main :: IO ()
 main = do
   text <- lines <$> readFile "input.txt"

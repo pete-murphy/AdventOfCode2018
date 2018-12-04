@@ -29,25 +29,18 @@ generateCoords ((x, y), w, h) = do
   y' <- [y .. (y + h - 1)]
   return $ (x', y')
 
-solve :: [(Coord, Int, Int)] -> Int
-solve xs =
+solve' :: [(Coord, Int, Int)] -> Int
+solve' xs =
   length $
   map head $
   filter (\g -> length g > 1) $ group $ sort $ concatMap generateCoords xs
 
+solve = solve' . map parseLine . lines
+
 parseLine :: String -> (Coord, Int, Int)
 parseLine = fromSuccess . parseString parserLine mempty
 
--- parseLine :: String -> (Coord, Int, Int)
--- parseLine xs =
---   let xs' = words xs
---       (x, y) = read $ (xs' !! 2)
---       w :: Int
---       w = read $ takeWhile isDigit $ xs' !! 3
---       h :: Int
---       h = read $ takeWhile isDigit $ drop 1 $ dropWhile isDigit $ xs' !! 3
---    in ((x, y), 9, 9)
 main :: IO ()
 main = do
   text <- lines <$> readFile "input.txt"
-  putStrLn $ show $ solve $ map parseLine text
+  putStrLn $ show $ solve' $ map parseLine text
