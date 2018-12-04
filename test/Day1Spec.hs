@@ -11,9 +11,9 @@ spec :: Spec
 spec = do
   describe "Part1" $ do
     it "sample input" $ do
-      input <- readFile "sample/day1.txt"
+      input <- readFile "src/Day1/sample.txt"
       P1.solve input `shouldBe` 4
   describe "Part1" $ do
-    it "sample input" $ do
+    it "actual input" $ do
       input <- readFile "src/Day1/input.txt"
       P1.solve input `shouldBe` 516

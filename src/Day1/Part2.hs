@@ -56,16 +56,15 @@ solve2 xs =
 solve :: String -> Int
 solve = solveWithSet . toInts
 
-main' :: IO ()
-main' = do
-  listOfInts <- toInts <$> readFile "input-1.txt"
-  putStrLn $ show $ solveWithSet listOfInts
-
 main :: IO ()
-main =
-  defaultMain
-    [ bench "solve_ with go" $
-      nfIO $ solveWithSet . toInts <$> readFile "input-1.txt"
-    , bench "solve_ with fix" $
-      nfIO $ solve2 . toInts <$> readFile "input-1.txt"
-    ]
+main = do
+  listOfInts <- toInts <$> readFile "src/Day1/input.txt"
+  putStrLn $ show $ solveWithSet listOfInts
+-- main' :: IO ()
+-- main' =
+--   defaultMain
+--     [ bench "solve with go" $
+--       nfIO $ solveWithSet . toInts <$> readFile "input-1.txt"
+--     , bench "solve with fix" $
+--       nfIO $ solve2 . toInts <$> readFile "input-1.txt"
+--     ]
