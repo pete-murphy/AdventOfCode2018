@@ -1,4 +1,4 @@
-module Main where
+module Day1.Part2 where
 
 import           Control.Monad
 import           Criterion.Main

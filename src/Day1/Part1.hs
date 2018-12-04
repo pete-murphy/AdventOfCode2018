@@ -1,4 +1,4 @@
-module Main where
+module Day1.Part1 where
 
 removePlus :: String -> String
 removePlus = filter (/= '+')
