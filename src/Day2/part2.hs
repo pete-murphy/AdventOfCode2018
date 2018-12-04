@@ -13,17 +13,17 @@ mapDiff :: String -> [String] -> Maybe String
 mapDiff str strs =
   listToMaybe <$> filter (\xs -> length xs == 25) $ map (diff str) strs
 
-solve :: [String] -> [Maybe String]
-solve xs = go [] xs
+solve' :: String -> [Maybe String]
+solve' xs = go [] xs'
   where
+    xs' = lines xs
     go acc []     = acc
-    go acc (y:ys) = go (mapDiff y xs : acc) ys
+    go acc (y:ys) = go (mapDiff y xs' : acc) ys
 
-sample = ["abcde", "fghij", "klmno", "pqrst", "fguij", "axcye", "wvxyz"]
-
-foo = head . catMaybes . solve
+solve :: String -> String
+solve = head . catMaybes . solve'
 
 main :: IO ()
 main = do
-  text <- lines <$> readFile "input.txt"
-  putStrLn $ show $ head $ catMaybes $ solve text
+  text <- readFile "src/Day2/input.txt"
+  putStrLn $ show $ head $ catMaybes $ solve' text
