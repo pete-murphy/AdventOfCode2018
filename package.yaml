@@ -1,0 +1,26 @@
+name: aoc2018
+version: 1.3.0.6
+
+dependencies:
+  - base >=4.7
+  - containers
+  - linear
+  - parsec
+  - text >=0.11
+
+library:
+  exposed-modules:
+    - Day01
+    - Day02
+    - Day03
+    - Day04
+    - Day05
+  source-dirs: src
+
+tests:
+  test:
+    main: Spec.hs
+    source-dirs: test
+    dependencies:
+      - aoc2018
+      - hspec >=1.8

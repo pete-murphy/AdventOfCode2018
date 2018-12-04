@@ -1,0 +1,47 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.1.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: de2394a5c666466bd7cf4866f724d1f0feb752a0792d0f33c120c9bc93ed4ed3
+
+name:           aoc2018
+version:        1.3.0.6
+build-type:     Simple
+
+library
+  exposed-modules:
+      Day01
+      Day02
+      Day03
+      Day04
+      Day05
+  other-modules:
+      Paths_aoc2018
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7
+    , containers
+    , linear
+    , parsec
+    , text >=0.11
+  default-language: Haskell2010
+
+test-suite test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_aoc2018
+  hs-source-dirs:
+      test
+  build-depends:
+      aoc2018
+    , base >=4.7
+    , containers
+    , hspec >=1.8
+    , linear
+    , parsec
+    , text >=0.11
+  default-language: Haskell2010
