@@ -13,7 +13,13 @@ spec = do
     it "sample input" $ do
       input <- readFile "src/Day1/sample.txt"
       P1.solve input `shouldBe` 4
-  describe "Part1" $ do
     it "actual input" $ do
       input <- readFile "src/Day1/input.txt"
       P1.solve input `shouldBe` 516
+  describe "Part2" $ do
+    it "sample input" $ do
+      input <- readFile "src/Day1/sample.txt"
+      P2.solve input `shouldBe` 10
+    it "actual input" $ do
+      input <- readFile "src/Day1/input.txt"
+      P2.solve input `shouldBe` 71892
