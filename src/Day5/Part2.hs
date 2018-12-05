@@ -23,7 +23,7 @@ parse (x:xs) = go [x] xs
   where
     go [] (y:ys)
       | otherwise = go (y : []) ys
-    go acc [] = reverse acc
+    go acc [] = reverse $ tail acc
     go acc@(a:as) rest@(y:ys)
       | y `reactsWith` a = go as ys
       | otherwise = go (y : acc) ys
@@ -32,9 +32,7 @@ parse (x:xs) = go [x] xs
 
 solve :: String -> Int
 solve =
-  S.findMin .
-  S.fromList .
-  map ((subtract 1) . length . parse) . zipWith f alphaPairs . repeat
+  S.findMin . S.fromList . map (length . parse) . zipWith f alphaPairs . repeat
   where
     f xs = filter (`notElem` xs)
     alphaPairs = zipWith ((:)) ['a' .. 'z'] (map (: []) ['A' .. 'Z'])

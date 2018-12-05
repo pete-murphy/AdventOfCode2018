@@ -18,14 +18,12 @@ import           Data.Set        (Set)
 import qualified Data.Set        as S
 import           Text.Trifecta
 
-example = "dabAcCaCBAcCcaDA"
-
 parse :: String -> String
 parse (x:xs) = go [x] xs
   where
     go [] (y:ys)
       | otherwise = go (y : []) ys
-    go acc [] = reverse acc
+    go acc [] = reverse $ tail acc
     go acc@(a:as) rest@(y:ys)
       | y `reactsWith` a = go as ys
       | otherwise = go (y : acc) ys
@@ -34,7 +32,7 @@ parse (x:xs) = go [x] xs
 
 -- | Have to subtract 1 for '\n'
 solve :: String -> Int
-solve = subtract 1 . length . parse
+solve = length . parse
 
 main :: IO ()
 main = do
