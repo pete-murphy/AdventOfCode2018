@@ -6,17 +6,18 @@ module Day4.Part1 where
 
 import           Control.Arrow
 import           Data.Char
+import           Data.Function
 import           Data.List
-import           Data.Map      (Map)
-import qualified Data.Map      as M
+import           Data.List.Split
+import           Data.Map        (Map)
+import qualified Data.Map        as M
 import           Data.Maybe
-import           Data.Set      (Set)
-import qualified Data.Set      as S
+import           Data.Ord
+import           Data.Set        (Set)
+import qualified Data.Set        as S
 import           Text.Parsec
 
 type Parser = Parsec String ()
-
-type Guard = Int
 
 type Total = Int
 
@@ -24,19 +25,31 @@ type Minute = Int
 
 type Freq = Int
 
-data Shift =
-  Shift Guard
-        Total
-        (Map Minute Freq)
+type TimeCard = Map Minute Freq
 
-parseGuard :: Parser Guard
-parseGuard = undefined
+newtype Guard = G
+  { num :: Int
+  }
 
-parseShift :: Parser Shift
-parseShift = undefined
+data Action
+  = Shift Guard
+  | Sleep
+  | Wake
+
+parseLine :: String -> (Minute, Action)
+parseLine = undefined
 
 solve :: String -> Int
 solve = undefined
 
 main :: IO ()
 main = undefined
+
+maximumValBy :: (b -> b -> Ordering) -> Map a b -> (a, b)
+maximumValBy c = maximumBy (c `on` snd) . M.toList
+
+maximumVal :: Ord b => Map a b -> (a, b)
+maximumVal = maximumValBy compare
+
+freqs :: Ord a => [a] -> Map a Int
+freqs = M.fromListWith (+) . map (, 1)
