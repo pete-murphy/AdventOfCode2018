@@ -1,13 +1,9 @@
-{-# LANGUAGE TupleSections #-}
-
 module Day6.Part1 where
 
 import           Control.Arrow
 import           Data.Function
 import           Data.List
 import           Data.List.Split
-import           Data.Map        (Map)
-import qualified Data.Map        as M
 import           Data.Maybe
 import           Data.Ord
 
@@ -17,8 +13,8 @@ newtype Location = L
   { getL :: Coord
   } deriving (Eq, Ord, Show)
 
-findClosest :: Coord -> [Location] -> Maybe Location
-findClosest (cx, cy) ls =
+findClosest :: [Location] -> Coord -> Maybe Location
+findClosest ls (cx, cy) =
   case sortOn dist ls of
     (x:y:_)
       | dist x == dist y -> Nothing
@@ -54,22 +50,14 @@ isCandidate ((xMin, yMin), (xMax, yMax)) (L (x, y)) =
 parseLine :: String -> Location
 parseLine = L . (head &&& last) . map read . splitOn ", "
 
--- ***************
 solve :: String -> Int
 solve input =
-  (findLargest allLocs) .
-  map (flip findClosest allLocs) . genTerritory . findBounds $
+  (findLargest allLocs) . map (findClosest allLocs) . genTerritory . findBounds $
   allLocs
   where
     getLocs = map parseLine . lines
     allLocs = getLocs input
 
-main_ :: IO ()
-main_ = do
-  text <- readFile "sample.txt"
-  putStrLn $ show $ solve text
-
--- ***************
 minimumValBy :: (b -> b -> Ordering) -> [(a, b)] -> (a, b)
 minimumValBy c = minimumBy (c `on` snd)
 
@@ -82,10 +70,6 @@ minimumVal = minimumValBy compare
 maximumVal :: Ord b => [(a, b)] -> (a, b)
 maximumVal = maximumValBy compare
 
-freqs :: Ord a => [a] -> Map a Int
-freqs = M.fromListWith (+) . map (, 1)
-
--- ***************
 main :: IO ()
 main = do
   text <- readFile "input.txt"

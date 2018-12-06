@@ -1,13 +1,9 @@
-{-# LANGUAGE TupleSections #-}
-
 module Day6.Part2 where
 
 import           Control.Arrow
 import           Data.Function
 import           Data.List
 import           Data.List.Split
-import           Data.Map        (Map)
-import qualified Data.Map        as M
 import           Data.Maybe
 import           Data.Ord
 
@@ -16,8 +12,6 @@ type Coord = (Int, Int)
 newtype Location = L
   { getL :: Coord
   } deriving (Eq, Ord, Show)
-
-dist (cx, cy) = uncurry (+) . (abs . subtract cx *** abs . subtract cy) . getL
 
 isInRegion :: Int -> [Location] -> Coord -> Bool
 isInRegion n ls (cx, cy) = sum (map dist ls) <= n
@@ -41,7 +35,6 @@ genTerritory ((xMin, yMin), (xMax, yMax)) = do
 parseLine :: String -> Location
 parseLine = L . (head &&& last) . map read . splitOn ", "
 
--- ***************
 solve :: String -> Int
 solve input =
   length . filter (isInRegion 10000 allLocs) . genTerritory . findBounds $
@@ -50,19 +43,6 @@ solve input =
     getLocs = map parseLine . lines
     allLocs = getLocs input
 
-solve_ :: String -> Int
-solve_ input =
-  length . filter (isInRegion 30 allLocs) . genTerritory . findBounds $ allLocs
-  where
-    getLocs = map parseLine . lines
-    allLocs = getLocs input
-
-main_ :: IO ()
-main_ = do
-  text <- readFile "sample.txt"
-  putStrLn $ show $ solve_ text
-
--- ***************
 minimumValBy :: (b -> b -> Ordering) -> [(a, b)] -> (a, b)
 minimumValBy c = minimumBy (c `on` snd)
 
@@ -75,10 +55,6 @@ minimumVal = minimumValBy compare
 maximumVal :: Ord b => [(a, b)] -> (a, b)
 maximumVal = maximumValBy compare
 
-freqs :: Ord a => [a] -> Map a Int
-freqs = M.fromListWith (+) . map (, 1)
-
--- ***************
 main :: IO ()
 main = do
   text <- readFile "input.txt"
