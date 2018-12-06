@@ -18,11 +18,13 @@ newtype Location = L
   } deriving (Eq, Ord, Show)
 
 findClosest :: Coord -> [Location] -> Maybe Location
-findClosest (x, y) ls =
-  case sortOn (uncurry (*) . (abs . subtract x *** abs . subtract y) . getL) ls of
+findClosest (cx, cy) ls =
+  case sortOn dist ls of
     (x:y:_)
-      | x == y -> Nothing
+      | dist x == dist y -> Nothing
       | otherwise -> Just x
+  where
+    dist = uncurry (+) . (abs . subtract cx *** abs . subtract cy) . getL
 
 findLargest :: [Location] -> [Maybe Location] -> Int
 findLargest ls =
@@ -61,6 +63,11 @@ solve input =
   where
     getLocs = map parseLine . lines
     allLocs = getLocs input
+
+main_ :: IO ()
+main_ = do
+  text <- readFile "sample.txt"
+  putStrLn $ show $ solve text
 
 -- ***************
 minimumValBy :: (b -> b -> Ordering) -> [(a, b)] -> (a, b)
