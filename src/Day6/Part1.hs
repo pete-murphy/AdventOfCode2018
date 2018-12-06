@@ -1,3 +1,5 @@
+{-# LANGUAGE TupleSections #-}
+
 module Day6.Part1 where
 
 import           Control.Arrow
@@ -7,10 +9,7 @@ import           Data.List.Split
 import           Data.Map        (Map)
 import qualified Data.Map        as M
 import           Data.Maybe
-import           Data.Monoid
 import           Data.Ord
-import           Data.Set        (Set)
-import qualified Data.Set
 
 type Coord = (Int, Int)
 
@@ -18,13 +17,20 @@ newtype Location = L
   { getL :: Coord
   } deriving (Eq, Ord, Show)
 
-type Territory = Set Coord
+findClosest :: Coord -> [Location] -> Maybe Location
+findClosest (x, y) ls =
+  case sortOn (uncurry (*) . (abs . subtract x *** abs . subtract y) . getL) ls of
+    (x:y:_)
+      | x == y -> Nothing
+      | otherwise -> Just x
 
--- expandAll :: [[Coord]] -> [[Coord]]
--- expandAll css =
---
--- expand :: Coord -> [Coord]
--- expand (x, y) = [(x+1,y), (x,y+1), (x-1,y), (x,y-1)]
+findLargest :: [Location] -> [Maybe Location] -> Int
+findLargest ls =
+  length .
+  last .
+  sortOn length .
+  group . sort . filter (isCandidate $ findBounds ls) . catMaybes
+
 findBounds :: [Location] -> (Coord, Coord)
 findBounds xs =
   let xMin = fst $ getL $ minimum xs
@@ -33,21 +39,30 @@ findBounds xs =
       yMax = snd $ maximumVal $ getL <$> xs
    in ((xMin, yMin), (xMax, yMax))
 
-isInBounds :: Coord -> ((Int, Int), (Int, Int)) -> Bool
-isInBounds (x, y) ((xMin, yMin), (xMax, yMax)) =
+genTerritory :: (Coord, Coord) -> [Coord]
+genTerritory ((xMin, yMin), (xMax, yMax)) = do
+  x <- [xMin .. xMax]
+  y <- [yMin .. yMax]
+  pure (x, y)
+
+isCandidate :: (Coord, Coord) -> Location -> Bool
+isCandidate ((xMin, yMin), (xMax, yMax)) (L (x, y)) =
   x > xMin && x < xMax && y > yMin && y < yMax
 
-findClosest :: Coord -> Maybe Location
-findClosest = undefined
+parseLine :: String -> Location
+parseLine = L . (head &&& last) . map read . splitOn ", "
 
-parse :: String -> Location
-parse = L . (head &&& last) . map read . splitOn ", "
-
------ |||| ***************
+-- ***************
 solve :: String -> Int
-solve _ = 17
+solve input =
+  (findLargest allLocs) .
+  map (flip findClosest allLocs) . genTerritory . findBounds $
+  allLocs
+  where
+    getLocs = map parseLine . lines
+    allLocs = getLocs input
 
------ |||| ***************
+-- ***************
 minimumValBy :: (b -> b -> Ordering) -> [(a, b)] -> (a, b)
 minimumValBy c = minimumBy (c `on` snd)
 
@@ -59,3 +74,12 @@ minimumVal = minimumValBy compare
 
 maximumVal :: Ord b => [(a, b)] -> (a, b)
 maximumVal = maximumValBy compare
+
+freqs :: Ord a => [a] -> Map a Int
+freqs = M.fromListWith (+) . map (, 1)
+
+-- ***************
+main :: IO ()
+main = do
+  text <- readFile "input.txt"
+  putStrLn $ show $ solve text
