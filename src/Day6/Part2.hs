@@ -24,13 +24,6 @@ isInRegion n ls (cx, cy) = sum (map dist ls) <= n
   where
     dist = uncurry (+) . (abs . subtract cx *** abs . subtract cy) . getL
 
-findLargest :: [Location] -> [Maybe Location] -> Int
-findLargest ls =
-  length .
-  last .
-  sortOn length .
-  group . sort . filter (isCandidate $ findBounds ls) . catMaybes
-
 findBounds :: [Location] -> (Coord, Coord)
 findBounds xs =
   let xMin = fst $ getL $ minimum xs
@@ -45,17 +38,13 @@ genTerritory ((xMin, yMin), (xMax, yMax)) = do
   y <- [yMin .. yMax]
   pure (x, y)
 
-isCandidate :: (Coord, Coord) -> Location -> Bool
-isCandidate ((xMin, yMin), (xMax, yMax)) (L (x, y)) =
-  x > xMin && x < xMax && y > yMin && y < yMax
-
 parseLine :: String -> Location
 parseLine = L . (head &&& last) . map read . splitOn ", "
 
 -- ***************
 solve :: String -> Int
 solve input =
-  length . filter (isInRegion 1000 allLocs) . genTerritory . findBounds $
+  length . filter (isInRegion 10000 allLocs) . genTerritory . findBounds $
   allLocs
   where
     getLocs = map parseLine . lines
