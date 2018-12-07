@@ -6,8 +6,11 @@ dependencies:
   - containers
   - criterion
   - finite-typelits
+  - mtl
+  - parallel
   - parsec
   - split
+  - transformers
   - trifecta
 
 library:
