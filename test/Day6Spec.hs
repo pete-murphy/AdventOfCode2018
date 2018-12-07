@@ -10,10 +10,10 @@ main = hspec spec
 spec :: Spec
 spec = do
   describe "Part1" $ do
-    it "sample input 1" $ do
+    it "sample input" $ do
       sampleInput <- readFile "src/Day6/sample.txt"
       P1.solve sampleInput `shouldBe` 17
   describe "Part2" $ do
-    it "sample input" $ do
+    it "actual input" $ do
       input <- readFile "src/Day6/input.txt"
       P2.solve input `shouldBe` 34096
