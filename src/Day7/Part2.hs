@@ -22,30 +22,38 @@ type Step = Char
 solve :: Elves -> Map Step [Step] -> Int
 solve n ms = undefined
 
--- solveWith2 :: Map Step [Step] -> Int
--- solveWith2 ms = go 0 (,) (map (uncurry replicate) $ zip [1..] (S.toList $ allSteps ms))
---   where go secs (e0,e1) [] = secs
-stepDurations :: [(Step, Int)]
-stepDurations = zip ['A' .. 'Z'] [1 ..]
+stepDurations :: Int -> Map Step Int
+stepDurations n = M.fromList $ zip ['A' .. 'Z'] [n + 1 ..]
 
-orderOfSteps :: Map Step [Step] -> [[Step]]
-orderOfSteps ms = go [] (zip (S.toList $ allSteps ms) [1 ..])
+getStepDurations :: Map Step [Step] -> [(Step, Int)]
+getStepDurations = map (id &&& ((M.!) $ stepDurations 0)) . map fst . M.toList
+
+runSteps :: Elves -> Map Step [Step] -> Int
+runSteps n input = go (M.fromList $ getStepDurations input) M.empty [] 0
   where
-    go :: [[Step]] -> [(Step, Int)] -> [[Step]]
-    go acc = undefined
+    go ::
+         Map Step Int {- ^-- Queue -}
+      -> Map Step Int {- ^-- Current steps with time remaining per -}
+      -> [Step] {- ^-- Completed steps (to reference when finding next available step) -}
+      -> Int {- ^-- Current time -}
+      -> Int {- ^-- Total time -}
+    go qs curr comp acc
+      | qs == M.empty = acc
+      | M.size curr < n =
+        case findNext qs comp input of
+          Just k -> go (M.delete (fst k) qs) (uncurry M.insert k curr) comp acc
+          Nothing ->
+            case M.partition (== 0) (M.map (subtract 1) curr) {- ^-- If all possible threads are busy, tick forward, marking 0 as complete -}
+                  of
+              (x, y)
+                | x == M.empty -> go qs y comp (acc + 1)
+                | otherwise -> go qs y (M.keys x ++ comp) (acc + 1)
 
-type Completed = [Step]
+findNext :: Map Step Int -> [Step] -> Map Step [Step] -> Maybe (Step, Int)
+findNext qs comp input = find ((canBeAssigned input comp) . fst) . M.toList $ qs
 
-type Current = (Maybe (Step, Int), Maybe (Step, Int))
-
-runSteps :: [(Step, Int)] -> [(Maybe (Step, Int), Maybe (Step, Int))]
-runSteps queue = go queue (Nothing, Nothing) [] []
-  where
-    go [] curr comp acc         = acc
-    go (q:qs) (c1, c2) comp acc = error "I don't want to implement this"
-
-canBeDone :: Map Step [Step] -> [Step] -> Step -> Bool
-canBeDone steps completed s =
+canBeAssigned :: Map Step [Step] -> [Step] -> Step -> Bool
+canBeAssigned steps completed s =
   case steps M.!? s of
     Nothing -> True
     Just cs -> all (`elem` completed) cs

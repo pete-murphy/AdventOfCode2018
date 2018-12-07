@@ -12,7 +12,6 @@ import           Data.Ord
 
 solve :: [(Char, String)] -> String
 solve input = go [] (allChars input) []
-    -- | In the base case, return the accumulated string
   where
     go acc [] [] = acc
     go acc (x:xs) unmatched =
