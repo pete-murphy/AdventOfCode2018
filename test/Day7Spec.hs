@@ -16,4 +16,4 @@ spec = do
   describe "Part2" $ do
     it "sample input" $ do
       input <- readFile "src/Day7/sample.txt"
-      (P2.solve 2 . P2.parse) input `shouldBe` 15
+      (P2.solve_ 2 . P2.parse) input `shouldBe` 15
