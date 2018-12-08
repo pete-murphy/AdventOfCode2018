@@ -13,7 +13,3 @@ spec = do
     it "sample input" $ do
       sampleInput <- readFile "src/Day7/sample.txt"
       (P1.solve . P1.parse) sampleInput `shouldBe` "CABDFE"
-  describe "Part2" $ do
-    it "sample input" $ do
-      input <- readFile "src/Day7/sample.txt"
-      (P2.solve_ 2 . P2.parse) input `shouldBe` 15
