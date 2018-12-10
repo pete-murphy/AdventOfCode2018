@@ -27,37 +27,29 @@ play (p, m) = go (M.fromList $ map (, 0) [1 .. p]) 3 3 (S.fromList [0, 2, 1]) 1
     go gameState currPlayer currMarble boardState lastInsertIndex
       {- `gameState` is `Map Player Int` -- a map from player number (1-index) to score,
          `boardState` is a `Seq Int` that I need to insert a new marble into,
-         that marble will be inserted based on the `lastInsertIndex` and the length
+         that marble will be inserted based on the `lastInsertIndex` and the S.length
          of my `boardState`,  -}
-      | currMarble == (m + 1) = gameState
+      | currMarble == m + 1 = gameState
       | currMarble `mod` 23 == 0 =
         go
-          (M.adjust
-             (+ (boardState `S.index`
-                 ((lastInsertIndex - 7) `mod` (length boardState))))
-             currPlayer $
+          (M.adjust (+ (boardState `S.index` ix')) currPlayer $
            (M.adjust (+ currMarble) currPlayer) gameState)
-          (if currPlayer == p
-             then 1
-             else (currPlayer + 1))
+          ((currMarble - 1) `mod` p + 1)
           (currMarble + 1)
-          (S.deleteAt
-             ((lastInsertIndex - 7) `mod` (length boardState))
-             boardState)
-          ((lastInsertIndex - 7) `mod` (length boardState - 1))
+          (S.deleteAt ix' boardState)
+          ix'
       | otherwise =
         go
           gameState
-          (if currPlayer == p
-             then 1
-             else (currPlayer + 1))
+          ((currMarble - 1) `mod` p + 1)
           (currMarble + 1)
           (S.insertAt ix currMarble boardState)
           ix
       where
         ix = (lastInsertIndex + 2) `mod` (S.length boardState)
+        ix' = (lastInsertIndex - 7) `mod` (S.length boardState)
 
 main :: IO ()
 main = do
   text <- readFile "src/Day9/input.txt"
-  putStrLn $ show $ solve $ (id *** (* 100)) $ parse text
+  putStrLn $ show $ solve (405, 7095300)
