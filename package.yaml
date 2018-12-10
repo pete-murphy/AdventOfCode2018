@@ -7,6 +7,7 @@ dependencies:
   - containers
   - criterion
   - finite-typelits
+  - linear
   - mtl
   - parallel
   - parsec
@@ -34,6 +35,8 @@ library:
     - Day8.Part2
     - Day9.Part1
     - Day9.Part2
+    - Day10.Part1
+    - Day10.Part2
   source-dirs: src
 
 tests:

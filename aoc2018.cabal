@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 990c3a07b0dce975ac27862599a2da0111c1d2bca02ee1f9b9e2ae6915c9a4a6
+-- hash: 175b971bcfcefbc8879378deef949287a217315a651dce134b250f55cb8ad28a
 
 name:           aoc2018
 version:        1.3.0.6
@@ -30,6 +30,8 @@ library
       Day8.Part2
       Day9.Part1
       Day9.Part2
+      Day10.Part1
+      Day10.Part2
   other-modules:
       Day5.Benchmark
       Paths_aoc2018
@@ -41,6 +43,7 @@ library
     , containers
     , criterion
     , finite-typelits
+    , linear
     , mtl
     , parallel
     , parsec
@@ -53,6 +56,7 @@ test-suite spec
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Day10Spec
       Day1Spec
       Day2Spec
       Day3Spec
@@ -74,6 +78,7 @@ test-suite spec
     , criterion
     , finite-typelits
     , hspec
+    , linear
     , mtl
     , parallel
     , parsec
