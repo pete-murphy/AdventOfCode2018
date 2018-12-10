@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 37c2811e82a64b1a2f61f868d31195d7a5fb0abf46cba3abf0bc25a17ecc9c40
+-- hash: 990c3a07b0dce975ac27862599a2da0111c1d2bca02ee1f9b9e2ae6915c9a4a6
 
 name:           aoc2018
 version:        1.3.0.6
@@ -28,13 +28,16 @@ library
       Day7.Part2
       Day8.Part1
       Day8.Part2
+      Day9.Part1
+      Day9.Part2
   other-modules:
       Day5.Benchmark
       Paths_aoc2018
   hs-source-dirs:
       src
   build-depends:
-      base
+      array
+    , base
     , containers
     , criterion
     , finite-typelits
@@ -58,12 +61,14 @@ test-suite spec
       Day6Spec
       Day7Spec
       Day8Spec
+      Day9Spec
       Paths_aoc2018
   hs-source-dirs:
       test
   ghc-options: -fno-warn-orphans -fno-warn-unused-binds -fno-warn-unused-imports
   build-depends:
       aoc2018
+    , array
     , base
     , containers
     , criterion
