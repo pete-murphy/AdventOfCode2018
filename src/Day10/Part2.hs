@@ -3,16 +3,8 @@
 module Day10.Part2 where
 
 import           Control.Arrow
-import           Control.Monad.State
-import           Data.Array
-import           Data.Bifunctor
 import           Data.Char
-import           Data.Function
-import           Data.List
 import           Data.List.Split
-import           Data.Ord
-import           Debug.Trace
-import           Linear.V2
 
 type Coord = (Int, Int)
 
