@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 754ec726d72677b2c760fcb49e915885b564f981cd35c5a1e0bec0613233969e
+-- hash: bf9bec4cdaec724661be345a30a6727082dc8faf3cc5c32bd4f6077f3b5388b6
 
 name:           aoc2018
 version:        1.3.0.6
@@ -58,7 +58,6 @@ test-suite spec
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Day10Spec
       Day11Spec
       Day1Spec
       Day2Spec
