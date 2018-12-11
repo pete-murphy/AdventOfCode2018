@@ -53,35 +53,6 @@ preRun' :: Int -> [(Pos, Vel)] -> [(Pos, Vel)]
 preRun' 0 xs = xs
 preRun' n xs = preRun' (n - 1) (run xs)
 
---
---  render :: [(Pos, Vel)] -> Array Coord String
---  render lts =
---    accumArray (++) "" ((0, 0), (w, h)) $
---    map (, "X") $ map (bimap (subtract x) (subtract y) . fst) $ lts
---    where
---      ((x, y), (x', y')) = findBounds lts
---      w = x' - x
---      h = y' - y
-render' :: [(Pos, Vel)] -> [String]
-render' lts =
-  trace (show (h, w)) $
-  map
-    (concat .
-     map
-       (\(a, b) ->
-          if (a, b) `elem` pts
-            then "#"
-            else ".")) $
-  groupBy ((\x y -> snd x == snd y)) $ do
-    b <- [y .. (y')]
-    a <- [x .. (x')]
-    pure $ (a, b)
-  where
-    pts = map fst $ run $ run $ run lts
-    ((x, y), (x', y')) = findBounds lts
-    w = x' - x
-    h = y' - y
-
 findBounds'' :: [Pos] -> (Pos, Pos)
 findBounds'' ps = ((minimum xs, minimum ys), (maximum xs, maximum ys))
   where
@@ -117,45 +88,7 @@ run' n = do
   xs'' <- get
   pure $ map fst xs''
 
-turns :: Int -> StateT (Int, Int) IO String
-turns n = do
-  void $
-    replicateM n $ do
-      lift $ putStr "P: "
-      p' <- lift (read <$> getLine :: IO Int)
-      lift $ putStrLn $ "C: "
-      (c, p) <- get
-      if even (p')
-        then put (p, c + 1)
-        else put (p + 1, c)
-  (c'', p'') <- get
-  pure $
-    if c'' > p''
-      then "Computer wins"
-      else "You win"
-
-turn :: StateT (Int, Int) IO ()
-turn =
-  (lift $ putStr "P: ") >> lift (read <$> getLine :: IO Int) >>= \p' ->
-    (lift $ putStrLn $ "C: ") >> get >>= \(c, p) ->
-      if even (p')
-        then put (p, c + 1)
-        else put (p + 1, c)
-
-turns' :: Int -> StateT (Int, Int) IO String
-turns' n =
-  replicateM n turn >> get >>= \(c'', p'') ->
-    pure $
-    if c'' > p''
-      then "Computer wins"
-      else "You win"
-
 main :: IO ()
 main =
   readFile "src/Day10/input.txt" >>= \text ->
     runStateT (run' 3) (preRun $ parse text) >> (putStrLn "Done")
-
-main' :: IO ()
-main' = do
-  text <- readFile "src/Day10/sample.txt"
-  mapM_ (putStrLn . show) $ render' $ parse text
