@@ -27,27 +27,40 @@ grid s =
        in (c, calcPL c s)
 
 -- | `calcSquarePL` should take a coordinate in the grid, return the total power level for
---   all fuel cells in the (3x3) square wherein the given coordinate is the left,
+--   all fuel cells in the (n x n) square wherein the given coordinate is the left,
 --   topmost cell
-calcSquarePL :: Map Coord PowerLevel -> Coord -> PowerLevel
-calcSquarePL m c = sum pls
+calcSquarePL :: Map Coord PowerLevel -> Int -> Coord -> PowerLevel
+calcSquarePL m n c = sum pls
   where
     pls :: [PowerLevel]
     pls = catMaybes $ traverse M.lookup (mkSquare c) m
     mkSquare :: Coord -> [Coord]
     mkSquare (cx, cy) = do
-      x <- [cx .. (cx + 2)]
-      y <- [cy .. (cy + 2)]
+      x <- [cx .. cx + n - 1]
+      y <- [cy .. cy + n - 1]
       pure (x, y)
 
-solve :: Serial -> Coord
-solve s = head $ reverse $ sortOn (calcSquarePL (grid s)) candidates
+solve' :: Serial -> Int -> Map (Coord, Int) PowerLevel
+solve' s n = foldl (foldingFn s n) M.empty candidates
   where
     candidates :: [Coord]
     candidates = do
-      x <- [1 .. 298]
-      y <- [1 .. 298]
+      x <- [1 .. 300 - n + 1]
+      y <- [1 .. 300 - n + 1]
       pure (x, y)
+
+foldingFn ::
+     Serial
+  -> Int
+  -> Map (Coord, Int) PowerLevel
+  -> Coord
+  -> Map (Coord, Int) PowerLevel
+foldingFn s n m c = M.insert (c, n) v m
+  where
+    v = calcSquarePL (grid s) n c
+
+solve :: Serial -> (Coord, Int)
+solve s = fst $ last $ sortOn snd $ concatMap (M.toList . solve' s) [1 .. 300]
 
 main :: IO ()
 main = putStrLn (show $ solve 7803)
