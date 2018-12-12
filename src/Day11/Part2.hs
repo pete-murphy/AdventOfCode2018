@@ -1,9 +1,13 @@
+{-# LANGUAGE TupleSections #-}
+
 module Day11.Part2 where
 
+import           Control.Arrow
 import           Data.List
-import           Data.Map   (Map)
-import qualified Data.Map   as M
+import           Data.Map      (Map)
+import qualified Data.Map      as M
 import           Data.Maybe
+import           Data.Ord
 
 type Coord = (Int, Int)
 
@@ -26,41 +30,38 @@ grid s =
       let c = (x, y)
        in (c, calcPL c s)
 
--- | `calcSquarePL` should take a coordinate in the grid, return the total power level for
---   all fuel cells in the (n x n) square wherein the given coordinate is the left,
---   topmost cell
-calcSquarePL :: Map Coord PowerLevel -> Int -> Coord -> PowerLevel
-calcSquarePL m n c = sum pls
-  where
-    pls :: [PowerLevel]
-    pls = catMaybes $ traverse M.lookup (mkSquare c) m
-    mkSquare :: Coord -> [Coord]
-    mkSquare (cx, cy) = do
-      x <- [cx .. cx + n - 1]
-      y <- [cy .. cy + n - 1]
-      pure (x, y)
+type TopLeft = Coord
 
-solve' :: Serial -> Int -> Map (Coord, Int) PowerLevel
-solve' s n = foldl (foldingFn s n) M.empty candidates
+type Size = Int
+
+calcMaxPLByTL :: Map Coord PowerLevel -> TopLeft -> (Size, PowerLevel)
+calcMaxPLByTL m (cx, cy) =
+  maximumBy (comparing snd) $
+  (id *** sum) <$> do
+    size <- [1 .. (300 - (max cx cy) + 1)]
+    pure $
+      (size, ) $ do
+        x <- [cx .. cx + size - 1]
+        y <- [cy .. cy + size - 1]
+        pure $ m M.! (x, y)
+
+solve :: Serial -> (TopLeft, Size)
+solve s = (\(x, y, _) -> (x, y)) $ foldl foo ((1, 1), 0, 0) candidates
   where
-    candidates :: [Coord]
+    foo :: (TopLeft, Size, PowerLevel) -> TopLeft -> (TopLeft, Size, PowerLevel)
+    foo old@(tl, size, pl) tl'
+      | v > pl = (tl', u, v)
+      | otherwise = old
+      where
+        (u, v) = calcMaxPLByTL m tl'
+        m = grid s
+    candidates :: [TopLeft]
     candidates = do
-      x <- [1 .. 300 - n + 1]
-      y <- [1 .. 300 - n + 1]
+      x <- [1 .. 300]
+      y <- [1 .. 300]
       pure (x, y)
-
-foldingFn ::
-     Serial
-  -> Int
-  -> Map (Coord, Int) PowerLevel
-  -> Coord
-  -> Map (Coord, Int) PowerLevel
-foldingFn s n m c = M.insert (c, n) v m
-  where
-    v = calcSquarePL (grid s) n c
-
-solve :: Serial -> (Coord, Int)
-solve s = fst $ last $ sortOn snd $ concatMap (M.toList . solve' s) [1 .. 300]
+    g :: Map Coord PowerLevel
+    g = grid s
 
 main :: IO ()
 main = putStrLn (show $ solve 7803)

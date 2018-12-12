@@ -24,7 +24,7 @@ spec = do
       calcPL' fc12 `shouldBe` 0
       calcPL' fc13 `shouldBe` 4
     it "max PL of example grid (serial no. 18)" $ do
-      P1.solve 18 `shouldBe` (33, 45)
+      P2.solve 18 `shouldBe` ((90, 269), 16)
   where
     calcPL' = uncurry P1.calcPL
     fc10 = ((3, 5), 8)
