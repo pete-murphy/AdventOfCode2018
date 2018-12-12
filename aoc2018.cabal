@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: bf9bec4cdaec724661be345a30a6727082dc8faf3cc5c32bd4f6077f3b5388b6
+-- hash: 8e3d9694a33baf074cf5979d0013474ac12ab90905fd65aa5d46ff77ceb831d1
 
 name:           aoc2018
 version:        1.3.0.6
@@ -34,6 +34,8 @@ library
       Day10.Part2
       Day11.Part1
       Day11.Part2
+      Day12.Part1
+      Day12.Part2
   other-modules:
       Day5.Benchmark
       Paths_aoc2018
@@ -59,6 +61,7 @@ test-suite spec
   main-is: Spec.hs
   other-modules:
       Day11Spec
+      Day12Spec
       Day1Spec
       Day2Spec
       Day3Spec
