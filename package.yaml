@@ -6,6 +6,7 @@ dependencies:
   - array
   - containers
   - criterion
+  - dlist
   - finite-typelits
   - linear
   - mtl
