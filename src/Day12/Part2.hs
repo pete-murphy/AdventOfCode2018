@@ -1,6 +1,4 @@
-{-# LANGUAGE TupleSections #-}
-
-module Day12.Part1 where
+module Day12.Part2 where
 
 import           Control.Arrow
 import           Data.Array
@@ -28,6 +26,8 @@ parse (_:xs)   = parse xs
 parseInitialState :: String -> [(Int, Pot)]
 parseInitialState = zip [0 ..] . parse . head . lines
 
+type Pattern = Map [Pot] Pot
+
 parseRules :: String -> Pattern
 parseRules = M.fromList . map parseLine . (drop 2) . lines
   where
@@ -44,11 +44,6 @@ pad ps' = pad' $ reverse (pad'' $ reverse ps')
     pad'' ps@(_:(i, P):_)   = ((i + 3), N) : ((i + 2), N) : ps
     pad'' ps@(_:_:(i, P):_) = ((i + 3), N) : ps
     pad'' ps                = ps
-
-type Pattern = Map [Pot] Pot
-
-evolve :: Pattern -> [(Int, Pot)] -> [(Int, Pot)]
-evolve m ps = map (id *** (M.!) m) (toFives $ ps)
 
 evolve' :: Pattern -> [(Int, Pot)] -> [(Int, Pot)]
 evolve' m ps = map (id *** fromMaybe N . (M.!?) m) (toFives $ pad ps)
