@@ -86,10 +86,10 @@ tick ta ca = tick' [] (assocs ca)
          [((Int, Int), Maybe Cart)] -> [((Int, Int), Maybe Cart)] -> Collision
     tick' acc [] =
       case (findDuplicateCoord acc) of
-        Nothing -> trace (showCartsAndTrack ca ta) tick ta (ca // acc)
+        Nothing -> tick ta (ca // acc)
         Just x  -> x
     tick' acc (((x, y), Just (Cart Up t)):xs) =
-      let nextCell = (x - 1, y)
+      let nextCell = (x, y - 1)
           thisCell = (x, y)
        in case (ta ! nextCell, ca ! nextCell) of
             (_, Just _) -> nextCell
@@ -116,7 +116,7 @@ tick ta ca = tick' [] (assocs ca)
               error $
               "Something went wrong with up-facing cart" ++ show nextCell
     tick' acc (((x, y), Just (Cart Dn t)):xs) =
-      let nextCell = (x + 1, y)
+      let nextCell = (x, y + 1)
           thisCell = (x, y)
        in case (ta ! nextCell, ca ! nextCell) of
             (_, Just _) -> nextCell
@@ -142,9 +142,11 @@ tick ta ca = tick' [] (assocs ca)
             (x, _) ->
               error $
               "Something went wrong with down-facing cart" ++
-              show nextCell ++ " " ++ show x ++ "\n" ++ show (ta ! nextCell)
+              show nextCell ++
+              "\n" ++
+              show thisCell ++ "\n" ++ show x ++ "\n" ++ show (ta ! nextCell)
     tick' acc (((x, y), Just (Cart Rt t)):xs) =
-      let nextCell = (x, y + 1)
+      let nextCell = (x + 1, y)
           thisCell = (x, y)
        in case (ta ! nextCell, ca ! nextCell) of
             (_, Just _) -> nextCell
@@ -171,7 +173,7 @@ tick ta ca = tick' [] (assocs ca)
               error $
               "Something went wrong with right-facing cart" ++ show nextCell
     tick' acc (((x, y), Just (Cart Lt t)):xs) =
-      let nextCell = (x, y - 1)
+      let nextCell = (x - 1, y)
           thisCell = (x, y)
        in case (ta ! nextCell, ca ! nextCell) of
             (_, Just _) -> nextCell
@@ -226,7 +228,11 @@ showCarts ca =
     n = maximum . map (fst . fst) . assocs $ ca
 
 parseTrack :: String -> TrackArray
-parseTrack s = listArray ((0, 0), (x, y)) . concatMap parseLine . lines $ s
+parseTrack s =
+  array ((0, 0), (x, y)) .
+  map (\((y, x), t) -> ((x, y), t)) .
+  assocs . listArray ((0, 0), (y, x)) . concatMap parseLine . lines $
+  s
     -- Need to subtract 1 (array is 0-indexed)
   where
     x = subtract 1 $ length $ head $ lines s
@@ -245,7 +251,11 @@ parseTrack s = listArray ((0, 0), (x, y)) . concatMap parseLine . lines $ s
     parseLine (_:xs)    = Nothing : parseLine xs
 
 parseCarts :: String -> CartArray
-parseCarts s = listArray ((0, 0), (x, y)) . concatMap parseLine . lines $ s
+parseCarts s =
+  array ((0, 0), (x, y)) .
+  map (\((y, x), c) -> ((x, y), c)) .
+  assocs . listArray ((0, 0), (y, x)) . concatMap parseLine . lines $
+  s
   where
     x = subtract 1 $ length $ head $ lines s
     y = subtract 1 $ length $ lines s
@@ -265,5 +275,5 @@ solve t = tick ta ca
 
 main :: IO ()
 main = do
-  text <- readFile "src/Day13/sample/2.txt"
+  text <- readFile "src/Day13/input.txt"
   putStrLn $ show $ solve text
