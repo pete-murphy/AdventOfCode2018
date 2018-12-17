@@ -2,8 +2,11 @@ module Day13.Part1 where
 
 import           Data.Array
 import           Data.Char
+import           Data.Function
 import           Data.List
 import           Data.List.Split
+import           Data.Maybe
+import           Data.Ord
 import           Debug.Trace
 
 data CartDirection
@@ -47,7 +50,7 @@ instance Show Track where
 data Cart = Cart
   { dir   :: CartDirection
   , turns :: CartTurn
-  }
+  } deriving (Eq)
 
 getNextTurn :: CartTurn -> CartTurn
 getNextTurn L = S
@@ -65,21 +68,31 @@ type CartArray = Array (Int, Int) (Maybe Cart)
 
 type Collision = (Int, Int)
 
-tick :: Int -> TrackArray -> CartArray -> (Collision, Int)
-tick n ta ca = tick' [] (assocs ca)
+findDuplicateCoord :: [((Int, Int), a)] -> Maybe (Int, Int)
+findDuplicateCoord xs = findDuplicateCoord' xs'
+  where
+    xs' = sort $ map fst xs
+    findDuplicateCoord' [] = Nothing
+    findDuplicateCoord' [x] = Nothing
+    findDuplicateCoord' (x:y:xs'') =
+      if x == y
+        then Just x
+        else findDuplicateCoord' (y : xs'')
+
+tick :: TrackArray -> CartArray -> Collision
+tick ta ca = tick' [] (assocs ca)
   where
     tick' ::
-         [((Int, Int), Maybe Cart)]
-      -> [((Int, Int), Maybe Cart)]
-      -> (Collision, Int)
+         [((Int, Int), Maybe Cart)] -> [((Int, Int), Maybe Cart)] -> Collision
     tick' acc [] =
-      trace (show ca ++ "\n" ++ show acc ++ "\n" ++ show (ca // acc)) $
-      tick (n + 1) ta (ca // acc)
+      case (findDuplicateCoord acc) of
+        Nothing -> trace (showCartsAndTrack ca ta) tick ta (ca // acc)
+        Just x  -> x
     tick' acc (((x, y), Just (Cart Up t)):xs) =
       let nextCell = (x - 1, y)
           thisCell = (x, y)
        in case (ta ! nextCell, ca ! nextCell) of
-            (_, Just _) -> (nextCell, n)
+            (_, Just _) -> nextCell
             (Just I, _) ->
               tick' (acc ++ [(thisCell, Nothing), (nextCell, nextTurn)]) xs
               where nextTurn =
@@ -87,18 +100,26 @@ tick n ta ca = tick' [] (assocs ca)
                         S -> Just $ Cart Up S
                         L -> Just $ Cart Lt L
                         R -> Just $ Cart Rt R
-            (Just CB, _) -> tick' (acc ++ [(nextCell, Just (Cart Lt t))]) xs
-            (Just CF, _) -> tick' (acc ++ [(nextCell, Just (Cart Rt t))]) xs
-            (Just V, _) -> tick' (acc ++ [(nextCell, Just (Cart Up t))]) xs
+            (Just CB, _) ->
+              tick'
+                (acc ++ [(thisCell, Nothing), (nextCell, Just (Cart Lt t))])
+                xs
+            (Just CF, _) ->
+              tick'
+                (acc ++ [(thisCell, Nothing), (nextCell, Just (Cart Rt t))])
+                xs
+            (Just V, _) ->
+              tick'
+                (acc ++ [(thisCell, Nothing), (nextCell, Just (Cart Up t))])
+                xs
             _ ->
               error $
               "Something went wrong with up-facing cart" ++ show nextCell
     tick' acc (((x, y), Just (Cart Dn t)):xs) =
-      trace (showTrack ta) $
       let nextCell = (x + 1, y)
           thisCell = (x, y)
        in case (ta ! nextCell, ca ! nextCell) of
-            (_, Just _) -> (nextCell, n)
+            (_, Just _) -> nextCell
             (Just I, _) ->
               tick' (acc ++ [(thisCell, Nothing), (nextCell, nextTurn)]) xs
               where nextTurn =
@@ -106,17 +127,27 @@ tick n ta ca = tick' [] (assocs ca)
                         S -> Just $ Cart Dn S
                         L -> Just $ Cart Rt L
                         R -> Just $ Cart Lt R
-            (Just CB, _) -> tick' (acc ++ [(nextCell, Just (Cart Rt t))]) xs
-            (Just CF, _) -> tick' (acc ++ [(nextCell, Just (Cart Lt t))]) xs
-            (Just V, _) -> tick' (acc ++ [(nextCell, Just (Cart Dn t))]) xs
-            _ ->
+            (Just CB, _) ->
+              tick'
+                (acc ++ [(thisCell, Nothing), (nextCell, Just (Cart Rt t))])
+                xs
+            (Just CF, _) ->
+              tick'
+                (acc ++ [(thisCell, Nothing), (nextCell, Just (Cart Lt t))])
+                xs
+            (Just V, _) ->
+              tick'
+                (acc ++ [(thisCell, Nothing), (nextCell, Just (Cart Dn t))])
+                xs
+            (x, _) ->
               error $
-              "Something went wrong with down-facing cart" ++ show nextCell
+              "Something went wrong with down-facing cart" ++
+              show nextCell ++ " " ++ show x ++ "\n" ++ show (ta ! nextCell)
     tick' acc (((x, y), Just (Cart Rt t)):xs) =
       let nextCell = (x, y + 1)
           thisCell = (x, y)
        in case (ta ! nextCell, ca ! nextCell) of
-            (_, Just _) -> (nextCell, n)
+            (_, Just _) -> nextCell
             (Just I, _) ->
               tick' (acc ++ [(thisCell, Nothing), (nextCell, nextTurn)]) xs
               where nextTurn =
@@ -124,9 +155,18 @@ tick n ta ca = tick' [] (assocs ca)
                         S -> Just $ Cart Rt S
                         L -> Just $ Cart Up L
                         R -> Just $ Cart Dn R
-            (Just CB, _) -> tick' (acc ++ [(nextCell, Just (Cart Dn t))]) xs
-            (Just CF, _) -> tick' (acc ++ [(nextCell, Just (Cart Up t))]) xs
-            (Just H, _) -> tick' (acc ++ [(nextCell, Just (Cart Rt t))]) xs
+            (Just CB, _) ->
+              tick'
+                (acc ++ [(thisCell, Nothing), (nextCell, Just (Cart Dn t))])
+                xs
+            (Just CF, _) ->
+              tick'
+                (acc ++ [(thisCell, Nothing), (nextCell, Just (Cart Up t))])
+                xs
+            (Just H, _) ->
+              tick'
+                (acc ++ [(thisCell, Nothing), (nextCell, Just (Cart Rt t))])
+                xs
             _ ->
               error $
               "Something went wrong with right-facing cart" ++ show nextCell
@@ -134,7 +174,7 @@ tick n ta ca = tick' [] (assocs ca)
       let nextCell = (x, y - 1)
           thisCell = (x, y)
        in case (ta ! nextCell, ca ! nextCell) of
-            (_, Just _) -> (nextCell, n)
+            (_, Just _) -> nextCell
             (Just I, _) ->
               tick' (acc ++ [(thisCell, Nothing), (nextCell, nextTurn)]) xs
               where nextTurn =
@@ -142,13 +182,36 @@ tick n ta ca = tick' [] (assocs ca)
                         S -> Just $ Cart Lt S
                         L -> Just $ Cart Dn L
                         R -> Just $ Cart Up R
-            (Just CB, _) -> tick' (acc ++ [(nextCell, Just (Cart Up t))]) xs
-            (Just CF, _) -> tick' (acc ++ [(nextCell, Just (Cart Dn t))]) xs
-            (Just H, _) -> tick' (acc ++ [(nextCell, Just (Cart Lt t))]) xs
+            (Just CB, _) ->
+              tick'
+                (acc ++ [(thisCell, Nothing), (nextCell, Just (Cart Up t))])
+                xs
+            (Just CF, _) ->
+              tick'
+                (acc ++ [(thisCell, Nothing), (nextCell, Just (Cart Dn t))])
+                xs
+            (Just H, _) ->
+              tick'
+                (acc ++ [(thisCell, Nothing), (nextCell, Just (Cart Lt t))])
+                xs
             _ ->
               error $
               "Something went wrong with left-facing cart" ++ show nextCell
     tick' acc ((_, Nothing):xs) = tick' acc xs
+
+-- This is gnarly but it works
+showCartsAndTrack :: CartArray -> TrackArray -> String
+showCartsAndTrack ca ta =
+  unlines $
+  chunksOf (n + 1) $
+  concatMap snd $
+  assocs
+    (array (bounds ta) (fmap showMaybe <$> (assocs ta)) //
+     (fmap showMaybe <$> (filter (not . (== Nothing) . snd) (assocs ca))))
+  where
+    showMaybe (Just x) = show x
+    showMaybe Nothing  = " "
+    n = maximum . map (fst . fst) . assocs $ ta
 
 showTrack :: TrackArray -> String
 showTrack ta =
@@ -194,8 +257,8 @@ parseCarts s = listArray ((0, 0), (x, y)) . concatMap parseLine . lines $ s
     parseLine ('>':xs) = Just (Cart Rt R) : parseLine xs
     parseLine (_:xs)   = Nothing : parseLine xs
 
-solve :: String -> (Collision, Int)
-solve t = tick 0 ta ca
+solve :: String -> Collision
+solve t = tick ta ca
   where
     ta = parseTrack t
     ca = parseCarts t
