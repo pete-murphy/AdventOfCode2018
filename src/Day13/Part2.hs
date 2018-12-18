@@ -2,16 +2,9 @@
 
 module Day13.Part2 where
 
-import           Data.Array
-import           Data.Char
-import           Data.Function
-import           Data.List
-import           Data.List.Split
-import           Data.Map        (Map)
-import qualified Data.Map        as M
+import           Data.Map   (Map)
+import qualified Data.Map   as M
 import           Data.Maybe
-import           Data.Ord
-import           Debug.Trace
 
 data CartDirection
   = Up
@@ -26,17 +19,11 @@ data CartTurn
   | R
   deriving (Eq, Ord, Show)
 
--- Not sure if this is a good idea
-instance Enum CartTurn where
-  succ L = S
-  succ S = R
-  succ R = L
-  toEnum 0 = L
-  toEnum 1 = S
-  toEnum 2 = R
-  fromEnum L = 0
-  fromEnum S = 1
-  fromEnum R = 2
+-- Not a legit Enum instance but...
+succ' :: CartTurn -> CartTurn
+succ' L = S
+succ' S = R
+succ' R = L
 
 data Track
   = H
@@ -94,18 +81,18 @@ cartTurn (Cart h t) track =
   case track of
     I ->
       case (h, t) of
-        (Up, L) -> Cart Lt (succ t)
-        (Up, S) -> Cart Up (succ t)
-        (Up, R) -> Cart Rt (succ t)
-        (Rt, L) -> Cart Up (succ t)
-        (Rt, S) -> Cart Rt (succ t)
-        (Rt, R) -> Cart Dn (succ t)
-        (Dn, L) -> Cart Rt (succ t)
-        (Dn, S) -> Cart Dn (succ t)
-        (Dn, R) -> Cart Lt (succ t)
-        (Lt, L) -> Cart Dn (succ t)
-        (Lt, S) -> Cart Lt (succ t)
-        (Lt, R) -> Cart Up (succ t)
+        (Up, L) -> Cart Lt (succ' t)
+        (Up, S) -> Cart Up (succ' t)
+        (Up, R) -> Cart Rt (succ' t)
+        (Rt, L) -> Cart Up (succ' t)
+        (Rt, S) -> Cart Rt (succ' t)
+        (Rt, R) -> Cart Dn (succ' t)
+        (Dn, L) -> Cart Rt (succ' t)
+        (Dn, S) -> Cart Dn (succ' t)
+        (Dn, R) -> Cart Lt (succ' t)
+        (Lt, L) -> Cart Dn (succ' t)
+        (Lt, S) -> Cart Lt (succ' t)
+        (Lt, R) -> Cart Up (succ' t)
     CB ->
       case h {- CB is \ -}
             of
@@ -123,7 +110,7 @@ cartTurn (Cart h t) track =
     _ -> Cart h t
 
 tick :: TrackMap -> CartMap -> Coord
-tick tmap cmap = traceShow (M.size cmap) tick' (M.assocs cmap) M.empty
+tick tmap cmap = tick' (M.assocs cmap) M.empty
   where
     tick' :: [(Coord, Cart)] -> Map Coord Cart -> Coord
     tick' [] acc =
