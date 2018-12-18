@@ -10,10 +10,6 @@ main = hspec spec
 spec :: Spec
 spec = do
   describe "Part1" $ do
-    it "small sample tick" $ do
-      sample <- readFile "src/Day18/"
+    it "sample" $ do
+      sample <- readFile "src/Day18/sample.txt"
       P1.solve sample `shouldBe` 1147
---  describe "Part2" $ do
---    it "sample" $ do
---      sample <- readFile "src/Day18/"
---      P2.solve sample `shouldBe` (6, 4)

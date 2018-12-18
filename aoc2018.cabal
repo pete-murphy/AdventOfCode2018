@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3aa9066fc3f56b529ca99665d982cd6316647e6b2ee4579364d17cc4ba0927b4
+-- hash: 39428531d633f736af4a3345f11dc924f46fdedd0566d421c6077a721fb44241
 
 name:           aoc2018
 version:        1.3.0.6
@@ -12,6 +12,7 @@ build-type:     Simple
 
 library
   exposed-modules:
+      Util
       Day1.Part1
       Day1.Part2
       Day2.Part1
