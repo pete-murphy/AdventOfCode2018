@@ -24,7 +24,7 @@ accum m = go 1 S.empty
 solve = valueAfter 1000000000 . accum 500 . solve'
 
 valueAfter :: Int -> (Int, [Int]) -> Int
-valueAfter x (n, ys) = (!!) ys $ (x - n) `mod` length ys
+valueAfter x (n, ys) = (!!) ys $ (x - n + 1) `mod` length ys
 
 main :: IO ()
 main = do
