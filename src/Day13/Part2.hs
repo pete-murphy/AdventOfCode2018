@@ -133,9 +133,10 @@ tick tmap cmap = traceShow (M.size cmap) tick' (M.assocs cmap) M.empty
     tick' ((coord, cart):xs) acc =
       let nextCoord = cartMove coord cart
           cart' = cartTurn cart (tmap M.! nextCoord)
-       in case acc M.!? nextCoord of
-            Nothing -> tick' xs $ M.insert nextCoord cart' acc
-            Just _  -> tick' xs $ M.delete nextCoord acc
+       in case (acc M.!? coord, acc M.!? nextCoord) of
+            (Just _, _)        -> tick' xs $ M.delete coord acc
+            (_, Just _)        -> tick' xs $ M.delete nextCoord acc
+            (Nothing, Nothing) -> tick' xs $ M.insert nextCoord cart' acc
 
 withCoords :: [String] -> [(Coord, Char)]
 withCoords =
