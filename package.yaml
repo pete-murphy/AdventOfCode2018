@@ -15,6 +15,7 @@ dependencies:
   - split
   - transformers
   - trifecta
+  - vector
 
 library:
   exposed-modules:
@@ -45,6 +46,8 @@ library:
     - Day12.Part2
     - Day13.Part1
     - Day13.Part2
+    - Day16.Part1
+    - Day16.Part2
     - Day18.Part1
     - Day18.Part2
   source-dirs: src
