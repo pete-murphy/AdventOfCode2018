@@ -1,10 +1,13 @@
 module Day16.Part2 where
 
 import           Data.List
-import           Data.Map    (Map)
-import qualified Data.Map    as M
-import           Day16.Part1 hiding (main, parse, solve)
-import qualified Day16.Part1 as P1
+import           Data.List.Split
+import           Data.Map        (Map)
+import qualified Data.Map        as M
+import           Data.Vector     (Vector)
+import qualified Data.Vector     as V
+import           Day16.Part1     hiding (main, parse, solve)
+import qualified Day16.Part1     as P1
 
 opsString :: [String]
 opsString =
@@ -68,23 +71,23 @@ nameMatchingOps = go opsString ops
 matchMap :: [Sample] -> Map Int [String]
 matchMap = M.fromListWith intersect . match
 
-solve :: Map Int [String] -> Map Int String
-solve m = M.fromList $ map (fmap head) $ go ([], (M.toList m))
-  where
-    go :: ([(Int, [String])], [(Int, [String])]) -> [(Int, [String])]
-    go (uniqs, xs)
-      | null xs = uniqs
-      | otherwise =
-        go
-          ( (uniqs ++ uniqs')
-          , (map (fmap $ flip (\\) (concatMap snd (uniqs ++ uniqs'))) xs'))
-      where
-        (uniqs', xs') = splitOnUniq xs
-
 splitOnUniq :: [(Int, [String])] -> ([(Int, [String])], [(Int, [String])])
 splitOnUniq = span ((==) 1 . length . snd) . sortOn (length . snd)
+
+parse :: String -> [Instruction]
+parse =
+  map ((\(w:x:y:z:_) -> Instruction w x y z) . parseLine) .
+  lines . last . splitOn "\n\n\n\n"
+  where
+    parseLine :: String -> [Int]
+    parseLine = map read . words
+
+runProgram :: Registers -> [Instruction] -> Registers
+runProgram rs [] = rs
+runProgram rs ((Instruction opCode a b c):xs) =
+  runProgram ((opsMap M.! opCode) rs (Instruction undefined a b c)) xs
 
 main :: IO ()
 main = do
   text <- readFile "src/Day16/input.txt"
-  mapM_ (putStrLn . show) $ M.toList $ solve $ matchMap $ P1.parse text
+  putStrLn $ show $ runProgram (V.fromList [0, 0, 0, 0]) (parse text)
