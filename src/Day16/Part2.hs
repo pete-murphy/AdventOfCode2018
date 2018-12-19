@@ -36,6 +36,27 @@ match = foldl foo []
       where
         matches = nameMatchingOps samp
 
+opsMap :: Map Int Operation
+opsMap =
+  M.fromList
+    [ (0, muli)
+    , (1, borr)
+    , (2, gtri)
+    , (3, eqri)
+    , (4, gtrr)
+    , (5, eqir)
+    , (6, addi)
+    , (7, setr)
+    , (8, mulr)
+    , (9, addr)
+    , (10, bori)
+    , (11, bani)
+    , (12, seti)
+    , (13, eqrr)
+    , (14, banr)
+    , (15, gtir)
+    ]
+
 nameMatchingOps :: Sample -> [String]
 nameMatchingOps = go opsString ops
   where
