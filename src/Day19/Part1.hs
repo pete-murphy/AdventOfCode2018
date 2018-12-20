@@ -96,21 +96,27 @@ parseInstructions ls = M.fromList $ zip [0 ..] ls'
 parseIp :: String -> IPointer
 parseIp = read . last . words
 
+type IPointerReg = Int
+
 runProgram ::
-     Map IPointer (Operation, (Int, Int, Int)) -> Registers -> Registers
-runProgram mapInstructions rs =
-  case mapInstructions M.!? (V.head rs) of
+     IPointerReg
+  -> Map IPointer (Operation, (Int, Int, Int))
+  -> Registers
+  -> Registers
+runProgram ipr mapInstructions rs =
+  case mapInstructions M.!? (rs V.! ipr) of
     Nothing -> rs
     Just (op, (a, b, c)) ->
       runProgram
+        ipr
         mapInstructions
-        (incrementPointer $ runOperation op rs (a, b, c))
+        (incrementIPointer ipr $ runOperation op rs (a, b, c))
 
-incrementPointer :: Registers -> Registers
-incrementPointer rs = rs V.// [(0, (V.head rs) + 1)]
+incrementIPointer :: IPointerReg -> Registers -> Registers
+incrementIPointer ipr rs = rs V.// [(ipr, (rs V.! ipr) + 1)]
 
 solve :: String -> Registers
-solve text = runProgram mapInstructions $ V.fromList [ip, 0, 0, 0, 0, 0]
+solve text = runProgram ip mapInstructions $ V.fromList [0, 0, 0, 0, 0, 0]
   where
     (ip, mapInstructions) =
       (parseIp . head &&& parseInstructions . tail) $ lines text
