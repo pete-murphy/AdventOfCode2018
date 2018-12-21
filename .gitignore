@@ -4,3 +4,5 @@
 .stack-work
 *.ignore.*
 
+.DS_Store
+*/.DS_Store
